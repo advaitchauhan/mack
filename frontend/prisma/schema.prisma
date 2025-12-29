@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Conversation {
+  id            String    @id @default(cuid())
+  scenarioType  String    // coffee, bar, restaurant, transit, street
+  audioUrl      String?   // Full conversation audio (base64 or URL)
+  duration      Int       @default(0) // Duration in seconds
+  startedAt     DateTime
+  endedAt       DateTime?
+
+  feedback      Feedback?
+  messages      Message[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  speaker        String       // "user" or "ai"
+  content        String       // Transcribed text
+  audioUrl       String?      // Individual message audio (optional)
+  timestamp      Int          // Seconds from conversation start
+
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId])
+}
+
+model Feedback {
+  id             String       @id @default(cuid())
+  conversationId String       @unique
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  overallScore   Int          // 0-100
+  strengths      String[]     // Array of strength descriptions
+  improvements   String[]     // Array of improvement suggestions
+  metrics        Json         // Detailed metrics object
+
+  createdAt      DateTime     @default(now())
+}
