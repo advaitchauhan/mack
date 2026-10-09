@@ -6,6 +6,12 @@ import { NextResponse, type NextRequest } from 'next/server'
 const PUBLIC_PATHS = ['/login', '/auth']
 
 export async function middleware(request: NextRequest) {
+  // Local dev bypass (see lib/auth.ts): skip Supabase entirely so the server
+  // runs without Supabase keys configured.
+  if (process.env.NODE_ENV !== 'production' && process.env.DEV_USER_ID) {
+    return NextResponse.next({ request })
+  }
+
   let response = NextResponse.next({ request })
 
   const supabase = createServerClient(
@@ -34,8 +40,7 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser(token)
 
   const { pathname } = request.nextUrl
-  const devBypass = process.env.NODE_ENV !== 'production' && !!process.env.DEV_USER_ID
-  const isPublic = devBypass || pathname.startsWith('/api') || PUBLIC_PATHS.some(p => pathname.startsWith(p))
+  const isPublic = pathname.startsWith('/api') || PUBLIC_PATHS.some(p => pathname.startsWith(p))
   if (!user && !isPublic) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
