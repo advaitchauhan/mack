@@ -11,9 +11,20 @@ test.describe('API Endpoints', () => {
 
       const data = await response.json()
       expect(data).toHaveProperty('signedUrl')
+      expect(data).toHaveProperty('conversationId')
       expect(data).toHaveProperty('scenario')
-      expect(data.scenario).toHaveProperty('systemPrompt')
-      expect(data.scenario).toHaveProperty('voiceId')
+      // Prompts stay on the server
+      expect(data.scenario).not.toHaveProperty('systemPrompt')
+    })
+
+    test('should require sign-in', async ({ playwright }) => {
+      const anonymous = await playwright.request.newContext({ baseURL: 'http://localhost:3000' })
+      const response = await anonymous.post('/api/elevenlabs/signed-url', {
+        data: { scenarioType: 'coffee' },
+      })
+
+      expect(response.status()).toBe(401)
+      await anonymous.dispose()
     })
 
     test('should return error for missing scenarioType', async ({ request }) => {

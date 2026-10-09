@@ -158,18 +158,10 @@ export default function ReviewPage() {
     setFeedbackError(null)
 
     try {
-      const scenario = getScenario(conversation.scenarioType)
       const response = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          conversationId: conversation.id,
-          transcript: conversation.messages.map(m => ({
-            speaker: m.speaker === 'user' ? 'You' : 'Her',
-            content: m.content,
-          })),
-          scenarioType: conversation.scenarioType,
-        }),
+        body: JSON.stringify({ conversationId: conversation.id }),
       })
 
       if (response.ok) {

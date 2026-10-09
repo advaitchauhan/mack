@@ -1,9 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getScenario } from '@/lib/scenarios'
+import { getUser, unauthorized } from '@/lib/auth'
+import { getAgentIdForScenario, getSignedUrl } from '@/lib/elevenlabs'
+import { prisma } from '@/lib/db'
 
 // POST /api/elevenlabs/signed-url
-// Get a signed URL for ElevenLabs Conversational AI
+// Starts a practice conversation: creates the conversation record and returns
+// a signed URL for the scenario's ElevenLabs agent. The prompt stays on the server.
 export async function POST(request: NextRequest) {
+  const user = await getUser(request)
+  if (!user) return unauthorized()
+
   try {
     const { scenarioType } = await request.json()
 
@@ -11,22 +18,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'scenarioType is required' },
         { status: 400 }
-      )
-    }
-
-    const apiKey = process.env.ELEVENLABS_API_KEY
-    if (!apiKey || apiKey === 'your-elevenlabs-api-key') {
-      return NextResponse.json(
-        { error: 'ElevenLabs API key not configured' },
-        { status: 500 }
-      )
-    }
-
-    const agentId = process.env.ELEVENLABS_AGENT_ID
-    if (!agentId) {
-      return NextResponse.json(
-        { error: 'ElevenLabs Agent ID not configured. Create an agent at https://elevenlabs.io/app/conversational-ai' },
-        { status: 500 }
       )
     }
 
@@ -38,40 +29,29 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Get signed URL from ElevenLabs Conversational AI API
-    const response = await fetch(
-      `https://api.elevenlabs.io/v1/convai/conversation/get_signed_url?agent_id=${agentId}`,
-      {
-        method: 'GET',
-        headers: {
-          'xi-api-key': apiKey,
-        },
-      }
-    )
+    const agentId = await getAgentIdForScenario(scenarioType)
+    const signedUrl = await getSignedUrl(agentId)
 
-    if (!response.ok) {
-      const error = await response.text()
-      console.error('ElevenLabs API error:', error)
-      return NextResponse.json(
-        { error: `Failed to get signed URL: ${error}` },
-        { status: 500 }
-      )
-    }
-
-    const data = await response.json()
+    const conversation = await prisma.conversation.create({
+      data: {
+        userId: user.id,
+        scenarioType,
+        startedAt: new Date(),
+        duration: 0,
+      },
+    })
 
     return NextResponse.json({
-      signedUrl: data.signed_url,
+      signedUrl,
+      conversationId: conversation.id,
       scenario: {
         name: scenario.agentConfig.name,
-        systemPrompt: scenario.agentConfig.systemPrompt,
-        voiceId: scenario.agentConfig.voiceId,
       },
     })
   } catch (error) {
     console.error('Error getting signed URL:', error)
     return NextResponse.json(
-      { error: 'Internal server error' },
+      { error: 'Could not start the conversation' },
       { status: 500 }
     )
   }
