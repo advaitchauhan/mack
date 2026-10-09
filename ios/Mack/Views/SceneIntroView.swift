@@ -47,7 +47,7 @@ struct SceneIntroView: View {
                     .foregroundStyle(.secondary)
                 Text("\(countdown)")
                     .font(.system(size: 96, weight: .bold, design: .rounded))
-                    .contentTransition(.numericText(countdown: true))
+                    .contentTransition(.numericText(countsDown: true))
                 Text("You speak first. Say hi to \(scenario.agentName).")
                     .foregroundStyle(.secondary)
                 Spacer()
