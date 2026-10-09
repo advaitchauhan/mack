@@ -118,6 +118,14 @@ export async function getSignedUrl(agentId: string): Promise<string> {
   return data.signed_url
 }
 
+// WebRTC conversation token, used by the ElevenLabs Swift SDK (iOS).
+export async function getConversationToken(agentId: string): Promise<string> {
+  const data = await elevenlabs<{ token: string }>(
+    `/conversation/token?agent_id=${encodeURIComponent(agentId)}`
+  )
+  return data.token
+}
+
 export interface ElevenLabsTranscriptEntry {
   role: 'user' | 'agent'
   message: string | null

@@ -34,7 +34,8 @@ export async function middleware(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser(token)
 
   const { pathname } = request.nextUrl
-  const isPublic = pathname.startsWith('/api') || PUBLIC_PATHS.some(p => pathname.startsWith(p))
+  const devBypass = process.env.NODE_ENV !== 'production' && !!process.env.DEV_USER_ID
+  const isPublic = devBypass || pathname.startsWith('/api') || PUBLIC_PATHS.some(p => pathname.startsWith(p))
   if (!user && !isPublic) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
