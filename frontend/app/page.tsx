@@ -45,7 +45,12 @@ export default function Dashboard() {
               Practice real conversations. Build real confidence.
             </p>
           </div>
-          <ModeToggle onModeChange={setMode} />
+          <div className="flex items-center gap-2">
+            <ModeToggle onModeChange={setMode} />
+            <form action="/auth/signout" method="post">
+              <Button type="submit" variant="ghost" size="sm">Sign out</Button>
+            </form>
+          </div>
         </div>
 
         <Tabs defaultValue="practice" className="w-full">

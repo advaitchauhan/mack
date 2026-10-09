@@ -173,7 +173,7 @@ export default function ConversationHistoryList() {
                       </div>
                       {scenario && (
                         <p className="text-sm text-muted-foreground">
-                          Practiced with {scenario.agentConfig.name}
+                          {scenario.name}
                         </p>
                       )}
                     </div>

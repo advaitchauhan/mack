@@ -158,18 +158,10 @@ export default function ReviewPage() {
     setFeedbackError(null)
 
     try {
-      const scenario = getScenario(conversation.scenarioType)
       const response = await fetch('/api/feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          conversationId: conversation.id,
-          transcript: conversation.messages.map(m => ({
-            speaker: m.speaker === 'user' ? 'You' : scenario?.agentConfig.name || 'AI',
-            content: m.content,
-          })),
-          scenarioType: conversation.scenarioType,
-        }),
+        body: JSON.stringify({ conversationId: conversation.id }),
       })
 
       if (response.ok) {
@@ -302,7 +294,7 @@ export default function ReviewPage() {
         <div className="flex-1">
           <h1 className="text-2xl font-bold">Conversation Review</h1>
           <p className="text-muted-foreground">
-            {scenario?.name || conversation.scenarioType} with {scenario?.agentConfig.name || 'AI'}
+            {scenario?.name || conversation.scenarioType}
           </p>
         </div>
         {feedback && (
@@ -423,7 +415,7 @@ export default function ReviewPage() {
                           message.speaker === 'ai' ? 'text-rose-600' : 'text-blue-600'
                         }`}
                       >
-                        {message.speaker === 'ai' ? scenario?.agentConfig.name || 'AI' : 'You'}
+                        {message.speaker === 'ai' ? 'Her' : 'You'}
                       </span>
                       <span className="text-sm text-muted-foreground">
                         {formatTime(message.timestamp)}

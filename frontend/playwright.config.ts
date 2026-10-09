@@ -15,6 +15,11 @@ export default defineConfig({
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
+    // The app requires sign-in. Set E2E_ACCESS_TOKEN to a Supabase access
+    // token for a test user to run the suite.
+    extraHTTPHeaders: process.env.E2E_ACCESS_TOKEN
+      ? { Authorization: `Bearer ${process.env.E2E_ACCESS_TOKEN}` }
+      : undefined,
   },
 
   projects: [

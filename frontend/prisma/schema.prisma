@@ -10,6 +10,8 @@ datasource db {
 
 model Conversation {
   id            String    @id @default(cuid())
+  userId        String?   // Supabase auth user id
+  elevenLabsConversationId String? @unique
   scenarioType  String    // coffee, bar, restaurant, transit, street
   audioUrl      String?   // Full conversation audio (base64 or URL)
   duration      Int       @default(0) // Duration in seconds
@@ -21,6 +23,8 @@ model Conversation {
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
 }
 
 model Message {
@@ -49,4 +53,14 @@ model Feedback {
   metrics        Json         // Detailed metrics object
 
   createdAt      DateTime     @default(now())
+}
+
+// One ElevenLabs agent per scenario, created on demand from the base agent.
+// configHash changes when the scenario's prompt or voice changes, which
+// triggers an update of the agent.
+model ScenarioAgent {
+  scenarioType String   @id
+  agentId      String
+  configHash   String
+  updatedAt    DateTime @updatedAt
 }

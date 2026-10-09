@@ -33,6 +33,7 @@ export function VoiceConversation({ scenarioType }: VoiceConversationProps) {
   const [error, setError] = useState<string | null>(null)
 
   const conversationRef = useRef<Conversation | null>(null)
+  const conversationIdRef = useRef<string | null>(null)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const startTimeRef = useRef<number>(0)
 
@@ -77,21 +78,21 @@ export function VoiceConversation({ scenarioType }: VoiceConversationProps) {
         throw new Error(data.error || 'Failed to get signed URL')
       }
 
-      const { signedUrl, scenario: scenarioConfig } = await response.json()
+      const { signedUrl, conversationId: mackConversationId } = await response.json()
+      conversationIdRef.current = mackConversationId
 
-      // Start ElevenLabs conversation session with scenario-specific prompt
+      // The signed URL is for this scenario's agent; its prompt lives on the server
       const conversation = await Conversation.startSession({
         signedUrl,
-        overrides: {
-          agent: {
-            prompt: {
-              prompt: scenarioConfig.systemPrompt,
-            },
-          },
-        },
         onConnect: ({ conversationId }) => {
           console.log('Connected to ElevenLabs:', conversationId)
           setStatus('connected')
+          // Link the call so the server can fetch its transcript when it ends
+          fetch(`/api/conversations/${mackConversationId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ elevenLabsConversationId: conversationId }),
+          }).catch(err => console.error('Error linking conversation:', err))
         },
         onDisconnect: (details) => {
           console.log('Disconnected:', details)
@@ -159,21 +160,10 @@ export function VoiceConversation({ scenarioType }: VoiceConversationProps) {
     }
 
     // Save conversation to database
-    try {
-      const response = await fetch('/api/conversations', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          scenarioType,
-          startedAt: new Date(startTimeRef.current || Date.now()).toISOString(),
-        }),
-      })
-
-      if (response.ok) {
-        const conversation = await response.json()
-
-        // Update with messages and duration
-        await fetch(`/api/conversations/${conversation.id}`, {
+    const conversationId = conversationIdRef.current
+    if (conversationId) {
+      try {
+        await fetch(`/api/conversations/${conversationId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -187,27 +177,21 @@ export function VoiceConversation({ scenarioType }: VoiceConversationProps) {
           }),
         })
 
-        // Generate feedback in background (don't wait for it)
+        // Generate feedback in background (don't wait for it). The server also
+        // generates it from ElevenLabs' post-call webhook; whichever runs first wins.
         if (messages.length > 0) {
           fetch('/api/feedback', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              conversationId: conversation.id,
-              transcript: messages.map(m => ({
-                speaker: m.role === 'user' ? 'You' : scenario?.agentConfig.name || 'AI',
-                content: m.content,
-              })),
-              scenarioType,
-            }),
+            body: JSON.stringify({ conversationId }),
           }).catch(err => console.error('Error generating feedback:', err))
         }
 
-        router.push(`/review/${conversation.id}`)
+        router.push(`/review/${conversationId}`)
         return
+      } catch (err) {
+        console.error('Error saving conversation:', err)
       }
-    } catch (err) {
-      console.error('Error saving conversation:', err)
     }
 
     // Fallback to mock review
@@ -333,7 +317,7 @@ export function VoiceConversation({ scenarioType }: VoiceConversationProps) {
         {/* Avatar */}
         <AvatarDisplay
           src={scenario.avatar}
-          name={scenario.agentConfig.name}
+          name="Her"
           isSpeaking={mode === 'speaking'}
           isListening={mode === 'listening' && status === 'connected'}
         />

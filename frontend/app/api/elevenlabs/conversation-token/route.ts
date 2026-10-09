@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getScenario } from '@/lib/scenarios'
 import { getUser, unauthorized } from '@/lib/auth'
-import { getAgentIdForScenario, getSignedUrl } from '@/lib/elevenlabs'
+import { getAgentIdForScenario, getConversationToken } from '@/lib/elevenlabs'
 import { prisma } from '@/lib/db'
 
-// POST /api/elevenlabs/signed-url
-// Starts a practice conversation: creates the conversation record and returns
-// a signed URL for the scenario's ElevenLabs agent. The prompt stays on the server.
+// POST /api/elevenlabs/conversation-token
+// Same as /api/elevenlabs/signed-url, but returns a WebRTC conversation token
+// for the ElevenLabs Swift SDK (iOS). The prompt stays on the server.
 export async function POST(request: NextRequest) {
   const user = await getUser(request)
   if (!user) return unauthorized()
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     }
 
     const agentId = await getAgentIdForScenario(scenarioType)
-    const signedUrl = await getSignedUrl(agentId)
+    const token = await getConversationToken(agentId)
 
     const conversation = await prisma.conversation.create({
       data: {
@@ -42,14 +42,12 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json({
-      signedUrl,
+      token,
       conversationId: conversation.id,
-      scenario: {
-        name: scenario.agentConfig.name,
-      },
+      agentName: scenario.agentConfig.name,
     })
   } catch (error) {
-    console.error('Error getting signed URL:', error)
+    console.error('Error getting conversation token:', error)
     return NextResponse.json(
       { error: 'Could not start the conversation' },
       { status: 500 }

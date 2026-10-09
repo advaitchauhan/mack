@@ -1,10 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/db'
+import { getUser, unauthorized } from '@/lib/auth'
 
-// GET /api/conversations - Get all conversations
-export async function GET() {
+// GET /api/conversations - Get the signed-in user's conversations
+export async function GET(request: NextRequest) {
+  const user = await getUser(request)
+  if (!user) return unauthorized()
+
   try {
     const conversations = await prisma.conversation.findMany({
+      where: { userId: user.id },
       include: {
         feedback: {
           select: {
@@ -29,6 +34,9 @@ export async function GET() {
 
 // POST /api/conversations - Create a new conversation
 export async function POST(request: NextRequest) {
+  const user = await getUser(request)
+  if (!user) return unauthorized()
+
   try {
     const body = await request.json()
     const { scenarioType, startedAt } = body
@@ -42,6 +50,7 @@ export async function POST(request: NextRequest) {
 
     const conversation = await prisma.conversation.create({
       data: {
+        userId: user.id,
         scenarioType,
         startedAt: startedAt ? new Date(startedAt) : new Date(),
         duration: 0,
