@@ -68,7 +68,7 @@ export const scenarios: Record<string, ScenarioConfig> = {
     agentConfig: {
       name: 'Jessica',
       voiceId: VOICES.jessica,
-      systemPrompt: `You are Jessica, a 26-year-old woman. Your name is Jessica. Always remember your name is Jessica.
+      systemPrompt: `You are Jessica, a 26-year-old woman at a coffee shop.
 
 CURRENT SITUATION:
 - You are sitting alone at a small table in a cozy coffee shop
@@ -340,7 +340,7 @@ IMPORTANT:
   street: {
     type: 'street',
     name: 'Street Approach',
-    avatar: '/placeholder.jpg',
+    avatar: '/young-woman-street-walking-casual.jpg',
     description: 'Practice approaching someone walking by on the street',
     difficulty: 'intermediate',
     duration: '3-5 minutes',
@@ -416,7 +416,7 @@ IMPORTANT:
   guarded: {
     type: 'guarded',
     name: 'The Guarded One',
-    avatar: '/young-woman-skeptical-arms-crossed-coffee-shop.jpg',
+    avatar: '/young-woman-skeptical-coffee-shop.jpg',
     description: 'Approach someone who is skeptical of random approaches',
     difficulty: 'advanced',
     duration: '5-10 minutes',
@@ -504,7 +504,7 @@ REMEMBER:
   taken: {
     type: 'taken',
     name: 'The Taken One',
-    avatar: '/young-woman-friendly-smile-casual-coffee.jpg',
+    avatar: '/young-woman-friendly-reading-coffee.jpg',
     description: 'Navigate a conversation where she has a boyfriend',
     difficulty: 'advanced',
     duration: '5-10 minutes',
@@ -597,7 +597,7 @@ IMPORTANT:
   badtiming: {
     type: 'badtiming',
     name: 'Bad Timing',
-    avatar: '/young-woman-stressed-rushing-street.jpg',
+    avatar: '/young-woman-stressed-rushing.jpg',
     description: 'Approach someone who is having a rough day and running late',
     difficulty: 'advanced',
     duration: '3-5 minutes',
@@ -696,7 +696,7 @@ IMPORTANT:
   shy: {
     type: 'shy',
     name: 'The Shy One',
-    avatar: '/young-woman-shy-looking-down-coffee.jpg',
+    avatar: '/young-woman-shy-glasses.jpg',
     description: 'Navigate a conversation with someone who is socially anxious',
     difficulty: 'intermediate',
     duration: '5-10 minutes',
@@ -788,7 +788,7 @@ REMEMBER:
   waitingfordate: {
     type: 'waitingfordate',
     name: 'Waiting for a Date',
-    avatar: '/young-woman-checking-phone-restaurant.jpg',
+    avatar: '/young-woman-checking-phone-bar.jpg',
     description: 'Approach someone waiting for a dating app match',
     difficulty: 'advanced',
     duration: '5-10 minutes',
@@ -875,7 +875,7 @@ IMPORTANT:
   bookstore: {
     type: 'bookstore',
     name: 'Bookstore Browse',
-    avatar: '/young-woman-reading-book-bookstore.jpg',
+    avatar: '/young-woman-bookstore-reading.jpg',
     description: 'Start a conversation in a quiet bookstore setting',
     difficulty: 'beginner',
     duration: '5-10 minutes',
@@ -962,7 +962,7 @@ REMEMBER:
   gym: {
     type: 'gym',
     name: 'Gym Approach',
-    avatar: '/young-woman-gym-workout-rest.jpg',
+    avatar: '/young-woman-gym-fitness.jpg',
     description: 'Navigate approaching someone at the gym respectfully',
     difficulty: 'advanced',
     duration: '3-5 minutes',
@@ -1057,7 +1057,7 @@ REMEMBER:
   dogpark: {
     type: 'dogpark',
     name: 'Dog Park',
-    avatar: '/young-woman-dog-park-smiling.jpg',
+    avatar: '/young-woman-dog-park.jpg',
     description: 'Chat with someone at the dog park with an easy built-in opener',
     difficulty: 'beginner',
     duration: '10-15 minutes',
@@ -1153,7 +1153,7 @@ REMEMBER:
   nightclub: {
     type: 'nightclub',
     name: 'Nightclub',
-    avatar: '/young-woman-nightclub-dancing.jpg',
+    avatar: '/young-woman-nightclub-fun.jpg',
     description: 'Navigate the high-energy nightclub environment',
     difficulty: 'advanced',
     duration: '5-10 minutes',

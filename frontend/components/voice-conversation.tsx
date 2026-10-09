@@ -195,7 +195,7 @@ export function VoiceConversation({ scenarioType }: VoiceConversationProps) {
             body: JSON.stringify({
               conversationId: conversation.id,
               transcript: messages.map(m => ({
-                speaker: m.role === 'user' ? 'You' : scenario?.agentConfig.name || 'AI',
+                speaker: m.role === 'user' ? 'You' : 'Her',
                 content: m.content,
               })),
               scenarioType,
@@ -333,7 +333,7 @@ export function VoiceConversation({ scenarioType }: VoiceConversationProps) {
         {/* Avatar */}
         <AvatarDisplay
           src={scenario.avatar}
-          name={scenario.agentConfig.name}
+          name="Her"
           isSpeaking={mode === 'speaking'}
           isListening={mode === 'listening' && status === 'connected'}
         />
